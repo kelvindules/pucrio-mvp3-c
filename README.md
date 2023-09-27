@@ -25,5 +25,5 @@ docker build --tag mvp3-a .
 ### Suba seu container
 
 ```bash
-docker run -d -p 5000:5000 mvp3-a
+docker run -d -p 5001:5001 mvp3-a
 ```
