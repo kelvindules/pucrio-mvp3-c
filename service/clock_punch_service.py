@@ -1,6 +1,6 @@
-from schema.clock_punch_schema import *
+from schema.clock_punch_schema import RegisterClockPunchSchema
 from model import Session, ClockPunch
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 
 def register(punch_request: RegisterClockPunchSchema):

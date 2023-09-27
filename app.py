@@ -4,7 +4,7 @@ from flask_openapi3 import OpenAPI, Info, Tag
 
 from datetime import datetime
 
-from schema.clock_punch_schema import *
+from schema.clock_punch_schema import RegisterClockPunchSchema, GetClockPunchesSchema, DeleteClockPunchSchema
 
 from service import auth, clock_punch_service
 
@@ -18,26 +18,25 @@ clock_punch_tag = Tag(name="Clock Punch", description="User's Clock Punch Flows"
 def str_to_date(date_str):
     return datetime.strptime(date_str, "%Y-%m-%d").date()
 
+if __name__ == "__main__":
+    app.run(debug=True)
 
 @app.post("/clock-punches", tags=[clock_punch_tag])
-def post_clock_punch():
-    form = request.get_json()
-    username = form["username"]
-    token = form["token"]
+def post_clock_punch(form: RegisterClockPunchSchema):
+    token_validation = auth.get_token_validation(form.token)
 
-    token_validation = auth.get_token_validation(token)
-
-    if auth.validate_token(username, token_validation):
-        return clock_punch_service.register(
-            RegisterClockPunchSchema(username=username, token=token)
-        )
+    if auth.validate_token(form.username, token_validation):
+        return clock_punch_service.register(form)
     else:
         return {"message": "Bad username/token combination"}, 401
 
 
 @app.get("/clock-punches/<string:username>", tags=[clock_punch_tag])
 def get_clock_punches(path: GetClockPunchesSchema):
-    token = request.headers["Authorization"].split(" ")[0]
+    token = request.headers.get("Authorization")
+    if (token is None):
+        return {"message": "Missing token"}, 401
+
     now = datetime.now()
     today = datetime(now.year, now.month, now.day)
 
@@ -55,7 +54,10 @@ def get_clock_punches(path: GetClockPunchesSchema):
 
 @app.delete("/clock-punches/<int:id>", tags=[clock_punch_tag])
 def delete_clock_punch(path: DeleteClockPunchSchema):
-    token = request.headers["Authorization"].split(" ")[0]
+    token = request.headers.get("Authorization")
+    if (token is None):
+        return {"message": "Missing token"}, 401
+    
     token_validation = auth.get_token_validation(token)
 
     clock_punch = clock_punch_service.get_clock_punch(path.id)

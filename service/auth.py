@@ -9,8 +9,11 @@ def login(username, password):
     return requests.post(login_url, data={"email": username, "password": password})
 
 
-def get_token_validation(token):
-    return requests.get(profile_url, headers={"Authorization": f"Bearer {token}"})
+def get_token_validation(token: str):
+    if not token.startswith("Bearer"):
+        token = f"Bearer {token}"
+
+    return requests.get(profile_url, headers={"Authorization": token})
 
 
 def validate_token(username: str, token_validation: Response):
