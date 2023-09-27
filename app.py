@@ -19,7 +19,7 @@ def str_to_date(date_str):
     return datetime.strptime(date_str, "%Y-%m-%d").date()
 
 
-@app.post("/clock-punches")
+@app.post("/clock-punches", tags=[clock_punch_tag])
 def post_clock_punch():
     form = request.get_json()
     username = form["username"]
@@ -35,7 +35,7 @@ def post_clock_punch():
         return {"message": "Bad username/token combination"}, 401
 
 
-@app.get("/clock-punches/<string:username>")
+@app.get("/clock-punches/<string:username>", tags=[clock_punch_tag])
 def get_clock_punches(path: GetClockPunchesSchema):
     token = request.headers["Authorization"].split(" ")[0]
     now = datetime.now()
@@ -53,7 +53,7 @@ def get_clock_punches(path: GetClockPunchesSchema):
         return {"message": "Bad username/token combination"}, 401
 
 
-@app.delete("/clock-punches/<int:id>")
+@app.delete("/clock-punches/<int:id>", tags=[clock_punch_tag])
 def delete_clock_punch(path: DeleteClockPunchSchema):
     token = request.headers["Authorization"].split(" ")[0]
     token_validation = auth.get_token_validation(token)
